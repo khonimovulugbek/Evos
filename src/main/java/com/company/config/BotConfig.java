@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @Data
-@PropertySource("/application.properties")
+@PropertySource("/application.yml")
 public class BotConfig {
     @Value("${bot.name}")
     private String botName;

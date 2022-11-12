@@ -24,4 +24,9 @@ public interface UserMenu {
 
     String MENU_LANG_UZ = "\uD83C\uDDFA\uD83C\uDDFF O'zbekcha";
     String MENU_LANG_RU = "\uD83C\uDDF7\uD83C\uDDFA Русский";
+
+    String MENU_YES_UZ = "✅ Ha";
+    String MENU_YES_RU = "✅ Да";
+    String MENU_NO_UZ = "❌ Yo'q";
+    String MENU_NO_RU = "❌ Нет";
 }

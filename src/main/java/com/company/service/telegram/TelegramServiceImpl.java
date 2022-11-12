@@ -2,18 +2,16 @@ package com.company.service.telegram;
 
 import com.company.service.sender.callback.CallBackQueryService;
 import com.company.service.sender.document.DocumentService;
+import com.company.service.sender.food.FoodService;
 import com.company.service.sender.message.MessageService;
 import com.company.service.user.UserService;
+import com.company.service.valid.ValidClassService;
+import com.company.variable.constants.FoodMenu;
 import com.company.variable.enums.UpdateEnum;
 import com.company.variable.message.GeneralSender;
-import com.company.variable.message.SenderMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -32,16 +30,16 @@ public class TelegramServiceImpl implements TelegramService {
     private final MessageService messageService;
     private final CallBackQueryService callBackQueryService;
     private final DocumentService documentService;
-
     private final UserService userService;
+    private final FoodService foodService;
 
-    @Value("${api.map}")
-    private String api;
+    private final ValidClassService valid;
 
 
     @Override
     public GeneralSender onUpdate(Update update) {
         UpdateEnum updateEnum = getUpdate(update);
+
 
         switch (updateEnum) {
             case MESSAGE_TEXT -> {
@@ -65,19 +63,7 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     private GeneralSender location(Message message) {
-        var lat = message.getLocation().getLatitude();
-        var lon = message.getLocation().getLongitude();
-        RestTemplate res = new RestTemplate();
-        var s = res.getForEntity("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=" + api, String.class);
-        JSONObject object = new JSONObject(s.getBody());
-        JSONArray array = new JSONArray(object.getJSONArray("results"));
-        object = (JSONObject) array.get(1);
-        var str = object.get("formatted_address");
-        return SenderMessage
-                .builder()
-                .text("Buyurma bermoqchi bolgan manzilingiz " + str)
-                .chatId(message.getChatId())
-                .build();
+        return documentService.location(message);
     }
 
     private GeneralSender messageDocument(Message message) {
@@ -96,6 +82,10 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     private GeneralSender messageText(Message message) {
+        var check = valid.isFormative(FoodMenu.class, message.getText());
+        if (check){
+           return foodService.start(message);
+        }
         Long chatId = message.getChatId();
         Integer messageId = message.getMessageId();
         userService.setMessageId(chatId, messageId);

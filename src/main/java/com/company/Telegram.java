@@ -5,6 +5,7 @@ import com.company.service.executor.ExecutorServices;
 import com.company.service.telegram.TelegramService;
 import com.company.variable.message.GeneralSender;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -39,8 +40,14 @@ public class Telegram extends TelegramLongPollingBot {
         return config.getToken();
     }
 
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
+//        var p = update.getMessage().getPhoto();
+//        GetFile file = new GetFile();
+//        file.setFileId(p.get(2).getFileId());
+//        var url = execute(file).getFileUrl(getBotToken());
+//        System.out.println(url);
         var sender = telegramService.onUpdate(update);
         if (sender != null) {
             executeMessage(sender);

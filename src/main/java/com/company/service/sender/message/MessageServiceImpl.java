@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import static com.company.variable.constants.UserLang.*;
+import static com.company.variable.constants.FoodMenu.*;
+import static com.company.variable.constants.UserLang.LANG_RU;
+import static com.company.variable.constants.UserLang.LANG_UZ;
 import static com.company.variable.constants.UserMenu.*;
 import static com.company.variable.constants.UserStep.*;
 
@@ -27,7 +29,6 @@ public class MessageServiceImpl extends AbstractService implements MessageServic
     @Override
     public GeneralSender start(Long chatId, Message message) {
         String step = userService.getStep(chatId);
-        String lang = userService.getLang(chatId);
         if (valid.isFormative(UserMenu.class, message.getText())) {
             switch (message.getText()) {
                 case MENU_MAIN_UZ, MENU_MAIN_RU -> {
@@ -51,6 +52,9 @@ public class MessageServiceImpl extends AbstractService implements MessageServic
                 case MENU_BACK_UZ, MENU_BACK_RU -> {
                     return menuBack(chatId);
                 }
+                case MENU_YES_UZ, MENU_YES_RU -> {
+                    return menuYes(chatId);
+                }
             }
 
         } else {
@@ -63,6 +67,41 @@ public class MessageServiceImpl extends AbstractService implements MessageServic
         }
 
         return null;
+    }
+
+    private GeneralSender menuYes(Long chatId) {
+        var lang = userService.getLang(chatId).equals(LANG_UZ);
+
+        var set = lang ? FOOD_SET_UZ : FOOD_SET_RU;
+        var lavash = lang ? FOOD_LAVASH_UZ : FOOD_LAVASH_RU;
+        var shourma = lang ? FOOD_SHAURMA_UZ : FOOD_SHAURMA_RU;
+        var donar = lang ? FOOD_DONAR_UZ : FOOD_DONAR_RU;
+        var burger = lang ? FOOD_BURGER_UZ : FOOD_BURGER_RU;
+        var xotDog = lang ? FOOD_HOT_DOG_UZ : FOOD_HOT_DOG_RU;
+        var desert = lang ? FOOD_DESERTS_UZ : FOOD_DESERTS_RU;
+        var drink = lang ? FOOD_DRINKS_UZ : FOOD_DRINKS_RU;
+        var garnir = lang ? FOOD_GARNIR_UZ : FOOD_GARNIR_RU;
+        var trash = lang ? FOOD_TRASH_UZ : FOOD_TRASH_RU;
+        var back = lang ? FOOD_BACK_UZ : FOOD_BACK_RU;
+
+        var r1 = reply.getRowsWithText(set, lavash);
+        var r2 = reply.getRowsWithText(shourma, donar);
+        var r3 = reply.getRowsWithText(burger, xotDog);
+        var r4 = reply.getRowsWithText(desert, drink);
+        var r5 = reply.getRowsWithText(garnir);
+        var r6 = reply.getRowsWithText(trash, back);
+
+        var keyboard = reply.getKeyboard(r1, r2, r3, r4, r5, r6);
+
+        var msg = "Выберите категорию.";
+
+        return SenderMessage
+                .builder()
+                .chatId(chatId)
+                .parseMode(ParseMode.HTML)
+                .text(msg)
+                .reply(keyboard)
+                .build();
     }
 
     private GeneralSender menuBack(Long chatId) {

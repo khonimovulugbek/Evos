@@ -3,8 +3,6 @@ package com.company.service.sender.document;
 import com.company.variable.message.GeneralSender;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import java.util.List;
-
 
 /**
  * Author : Khonimov Ulugbek
@@ -14,4 +12,6 @@ import java.util.List;
 
 public interface DocumentService {
     GeneralSender start(Long chatId, Message message);
+
+    GeneralSender location(Message message);
 }
